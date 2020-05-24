@@ -1,24 +1,13 @@
-# draw-component
+# Vue Draw / Paint Component
 
-## Project setup
-```
-yarn install
-```
+Vue component that can be used as an embedded paint program. 
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+## Screenshot
+![Screenshot of component](.github/screenshot.png)
 
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Todo
+* ~~Undo/redo~~
+* Listeners and bindings for Vue usage
+* Fill bucket
+* Eraser
+* Icons that aren't drawn in paint
