@@ -3,7 +3,7 @@
 Vue component that can be used as an embedded paint program. 
 
 ## Screenshot
-![Screenshot of component](.github/screenshot.png)
+![Screenshot of component](/.github/screenshot.png)
 
 ## Todo
 * ~~Undo/redo~~
