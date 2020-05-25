@@ -6,8 +6,8 @@
 
 <script>
     //TODO:
-    //Flood fill
-    //Eraser
+    //Faster flood fill algorithm
+    //Color picker when clicking on selected color
     //Better icons
 
     import DrawCanvas from './components/DrawCanvas.vue'
@@ -23,18 +23,19 @@
 <style>
     html, body {
         background-color: black;
-        margin: 0px;
-        padding: 0px;
-        height:100%;
+        margin: 0;
+        padding: 0;
+        height: 100%;
     }
 
     .my-dc {
         width: calc(100% - 20px);
         height: calc(100% - 20px);
-        margin:10px;
-        background-color:rgba(255,255,255,0.15);
-        border-radius:10px;
+        margin: 10px;
+        background-color: rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
         overflow: hidden;
+        position: fixed;
     }
 
     #app {
@@ -42,6 +43,6 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         color: #2c3e50;
-        height:100%;
+        height: 100%;
     }
 </style>

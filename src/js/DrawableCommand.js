@@ -1,6 +1,6 @@
 import Command from "@/js/Command";
 
-export default class LineCommand extends Command {
+export default class DrawableCommand extends Command {
     constructor(drawables, drawable) {
         super();
         this.drawables = drawables;
