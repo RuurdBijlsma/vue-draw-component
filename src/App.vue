@@ -27,6 +27,9 @@
         padding: 0;
         height: 100%;
     }
+    *{
+        /*cursor: url('assets/brush.png'), grab !important;*/
+    }
 
     .my-dc {
         width: calc(100% - 20px);
