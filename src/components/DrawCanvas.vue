@@ -295,7 +295,7 @@
                         n < image.data.length &&
                         n >= 0
                     );
-                    for(let n of neighbours){
+                    for (let n of neighbours) {
                         fillImage.data[n + 0] = replacementColor[0];
                         fillImage.data[n + 1] = replacementColor[1];
                         fillImage.data[n + 2] = replacementColor[2];
@@ -413,6 +413,7 @@
                     this.clearCanvas()
             },
             startMove(e, fingerIndex = 0) {
+                console.log("startMove", fingerIndex);
                 if (!this.fingers[fingerIndex])
                     this.fingers[fingerIndex] = {};
                 let finger = this.fingers[fingerIndex];
@@ -423,6 +424,7 @@
                 this.startTool(x, y, finger);
             },
             move(e, fingerIndex = 0) {
+                console.log("move", fingerIndex);
                 if (this.fingers[fingerIndex] && this.fingers[fingerIndex].down) {
                     let {top, left} = this.$refs.canvas.getBoundingClientRect();
                     let x = e.pageX - left;
@@ -431,6 +433,7 @@
                 }
             },
             endMove(e, fingerIndex = 0) {
+                console.log("endMove", fingerIndex);
                 if (this.fingers[fingerIndex]) {
                     if (this.fingers[fingerIndex].down) {
                         let {top, left} = this.$refs.canvas.getBoundingClientRect();
@@ -447,11 +450,11 @@
             },
             moveTouch(e) {
                 for (let touch of e.touches)
-                    this.startMove(touch, touch.identifier)
+                    this.move(touch, touch.identifier)
             },
             endTouch(e) {
-                for (let touch of e.touches)
-                    this.startMove(touch, touch.identifier)
+                for (let touch of e.changedTouches)
+                    this.endMove(touch, touch.identifier)
             },
             canvasResize() {
                 console.log('resize');
