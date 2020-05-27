@@ -196,17 +196,33 @@
                     delete finger.drawable;
                 } else if (this.activeTool === 'fill') {
                     let now = performance.now();
-                    this.fill2(x, y, this.activeColor);
+                    this.fill3(x, y, this.activeColor);
                     console.log("fill done", performance.now() - now);
                 }
             },
-            getNeighbours(width, height, x, y) {
-                return [
-                    [x - 1, y + 0],//left
-                    [x + 1, y + 0],//right
-                    [x + 0, y - 1],//top
-                    [x + 0, y + 1],//bottom
-                ].filter(([nX, nY]) =>
+            getNeighbours(width, height, x, y, n8 = false, dist = 1) {
+                let neighbours;
+                if (n8) {
+                    neighbours = [
+                        [x - dist, y + 0],//left
+                        [x + dist, y + 0],//right
+                        [x + 0, y - dist],//top
+                        [x + 0, y + dist],//bottom
+                        [x - dist, y + dist],//bottom left
+                        [x + dist, y + dist],//bottom right
+                        [x + dist, y - dist],//top right
+                        [x - dist, y - dist],//top left
+                    ];
+
+                } else {
+                    neighbours = [
+                        [x - dist, y + 0],//left
+                        [x + dist, y + 0],//right
+                        [x + 0, y - dist],//top
+                        [x + 0, y + dist],//bottom
+                    ];
+                }
+                return neighbours.filter(([nX, nY]) =>
                     !(nX === x && nY === y) &&
                     nX >= 0 && nX < width &&
                     nY >= 0 && nY < height
@@ -224,7 +240,7 @@
                     Math.abs(colorA[2] - colorB[2]) +
                     Math.abs(colorA[3] - colorB[3]);
             },
-            fill2(startX, startY, replacementColor = this.activeColor) {
+            fill3(startX, startY, replacementColor = this.activeColor) {
                 //Create duplicate canvas to draw on
                 let image = this.context.getImageData(0, 0, this.canvasWidth, this.canvasHeight);
 
@@ -235,11 +251,9 @@
                 let fillContext = fillCanvas.getContext('2d');
                 let fillImage = fillContext.getImageData(0, 0, this.canvasWidth, this.canvasHeight);
 
-                let i = (startY * this.canvasWidth + startX) * 4;
-                let targetColor = image.data.slice(i, i + 4);
+                let pixelPos = (startY * this.canvasWidth + startX) * 4;
+                let targetColor = image.data.slice(pixelPos, pixelPos + 4);
 
-                // Klinkklaar van Wikipedia gekopieerd
-                // If target-color is equal to replacement-color, return.
                 if (this.colorEquals(targetColor, replacementColor))
                     return;
 
@@ -256,44 +270,96 @@
                     return;
                 }
 
-                // If color of node is not equal to target-color, return.
+                // "Inspired" by https://github.com/1j01/jspaint
+                // https://github.com/1j01/jspaint/blob/1712cddd27ef3e0a2a611aae221303e9592c7d75/src/image-manipulation.js#L259
+                const isTargetColor = i =>
+                    // matches start color (i.e. region to fill)
+                    image.data[i + 0] === targetColor[0] &&
+                    image.data[i + 1] === targetColor[1] &&
+                    image.data[i + 2] === targetColor[2] &&
+                    image.data[i + 3] === targetColor[3];
 
-                let fillPixel = j => {
-                    image.data[j] = replacementColor[0];
-                    image.data[j + 1] = replacementColor[1];
-                    image.data[j + 2] = replacementColor[2];
-                    image.data[j + 3] = replacementColor[3];
-                    fillImage.data[j] = replacementColor[0];
-                    fillImage.data[j + 1] = replacementColor[1];
-                    fillImage.data[j + 2] = replacementColor[2];
-                    fillImage.data[j + 3] = replacementColor[3];
-                };
-                // Set the color of node to replacement-color.
-                fillPixel(i);
-
-                // Set Q to the empty queue.
-                // Add node to the end of Q.
-                let Q = [[startX, startY]];
-
-                // While Q is not empty:
-                while (Q.length > 0) {
-                    // Set n equal to the first element of Q.
-                    // Remove first element from Q.
-                    let [x, y] = Q.splice(0, 1)[0];
-                    let neighbours = this.getNeighbours(this.canvasWidth, this.canvasHeight, x, y);
-
-                    // If the color of one of the 4 neighbour nodes of n is target-color,
-                    // set the color of that node to replacement-color and add that node to the end of Q.
-                    for (let [nX, nY] of neighbours) {
-                        let nI = (nY * this.canvasWidth + nX) * 4;
-                        let nColor = image.data.slice(nI, nI + 4);
-                        fillPixel(nI);
-                        if (this.colorEquals(nColor, targetColor)) {
-                            Q.push([nX, nY]);
-                        }
+                const cw4 = this.canvasWidth * 4;
+                const fillPixel = i => {
+                    let neighbours = [
+                        i, //Also have center pixel in neighbours
+                        i + cw4,//Down
+                        i - cw4,//Up
+                        i + 4,//Right
+                        i - 4,//Left
+                        i + cw4 + 4,//Down right
+                        i - cw4 + 4,//Up right
+                        i + cw4 - 4,//Down left
+                        i - cw4 - 4,//Up left
+                    ].filter(n =>
+                        n < image.data.length &&
+                        n >= 0
+                    );
+                    for(let n of neighbours){
+                        fillImage.data[n + 0] = replacementColor[0];
+                        fillImage.data[n + 1] = replacementColor[1];
+                        fillImage.data[n + 2] = replacementColor[2];
+                        fillImage.data[n + 3] = replacementColor[3];
                     }
+                    //down
 
-                    // Continue looping until Q is exhausted.
+                    image.data[i + 0] = replacementColor[0];
+                    image.data[i + 1] = replacementColor[1];
+                    image.data[i + 2] = replacementColor[2];
+                    image.data[i + 3] = replacementColor[3];
+                };
+
+                const stack = [[startX, startY]];
+
+                while (stack.length) {
+                    let reachedLeft;
+                    let reachedRight;
+                    let [x, y] = stack.pop();
+
+                    pixelPos = (y * this.canvasWidth + x) * 4;
+                    while (isTargetColor(pixelPos)) {
+                        y--;
+                        pixelPos = (y * this.canvasWidth + x) * 4;
+                    }
+                    reachedLeft = false;
+                    reachedRight = false;
+
+                    while (true) {
+                        y++;
+                        pixelPos = (y * this.canvasWidth + x) * 4;
+
+                        //If y is out of bounds or the pixel isn't the targetColor break this loop
+                        if (!(y < this.canvasHeight && isTargetColor(pixelPos)))
+                            break;
+
+                        fillPixel(pixelPos);
+
+
+                        //Scan to our left
+                        if (x > 0)
+                            //Is pixel to the left target color
+                            if (isTargetColor(pixelPos - 4)) {
+                                if (!reachedLeft) {
+                                    stack.push([x - 1, y]);
+                                    reachedLeft = true;
+                                }
+                            } else if (reachedLeft)
+                                reachedLeft = false;
+
+                        //Scan to our right
+                        if (x < this.canvasWidth - 1)
+                            //Is pixel to the right target color
+                            if (isTargetColor(pixelPos + 4)) {
+                                if (!reachedRight) {
+                                    stack.push([x + 1, y]);
+                                    reachedRight = true;
+                                }
+                            } else if (reachedRight)
+                                reachedRight = false;
+
+                        //Go down one line
+                        pixelPos += cw4;
+                    }
                 }
                 fillContext.putImageData(fillImage, 0, 0);
             },
@@ -315,18 +381,22 @@
             updateCursor(brushSize, color, tool) {
                 if (tool === 'eraser')
                     color = [255, 255, 255, 255];
+                if (tool === 'fill')
+                    brushSize = 2;
                 let canvas = document.createElement('canvas');
                 let context = canvas.getContext('2d');
-                canvas.width = brushSize + 2;
-                canvas.height = brushSize + 2;
+                let strokeWidth = 10;
+                canvas.width = brushSize + strokeWidth * 2;
+                canvas.height = brushSize + strokeWidth * 2;
+                console.log(canvas.width, canvas.height);
                 context.fillStyle = this.toRgb(...color);
-                context.arc(1 + brushSize / 2, 1 + brushSize / 2, brushSize / 2, 0, 2 * Math.PI);
-                context.fill();
+                context.lineWidth = strokeWidth;
+                context.arc(canvas.width / 2, canvas.height / 2, brushSize / 2, 0, 2 * Math.PI);
                 context.strokeStyle = 'rgba(128,128,128,0.5)';
-                context.lineWidth = 2.5;
                 context.stroke();
+                context.fill();
                 let url = canvas.toDataURL('image/png');
-                this.$refs.canvas.style.cursor = `url(${url}) ${Math.floor(brushSize / 2)} ${Math.floor(brushSize / 2)}, auto`;
+                this.$refs.canvas.style.cursor = `url(${url}) ${Math.floor(canvas.width / 2)} ${Math.floor(canvas.height / 2)}, auto`;
             },
             handleKey(e) {
                 if (e.code === 'KeyZ' && e.ctrlKey && e.shiftKey)
