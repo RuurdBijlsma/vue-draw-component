@@ -8,6 +8,6 @@ Vue component that can be used as an embedded paint program.
 ## Todo
 * ~~Undo/redo~~
 * Listeners and bindings for Vue usage
-* Fill bucket
-* Eraser
+* ~~Fill bucket~~
+* ~~Eraser~~
 * Icons that aren't drawn in paint
