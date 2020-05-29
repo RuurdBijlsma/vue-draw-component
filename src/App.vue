@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <draw-canvas class="my-dc"/>
+        <simple-draw class="my-dc"/>
     </div>
 </template>
 
@@ -10,12 +10,12 @@
     //Color picker when clicking on selected color
     //Better icons
 
-    import DrawCanvas from './components/DrawCanvas.vue'
+    import SimpleDraw from './components/SimpleDraw.vue'
 
     export default {
         name: 'App',
         components: {
-            DrawCanvas
+            SimpleDraw
         }
     }
 </script>
@@ -27,7 +27,8 @@
         padding: 0;
         height: 100%;
     }
-    *{
+
+    * {
         /*cursor: url('assets/brush.png'), grab !important;*/
     }
 

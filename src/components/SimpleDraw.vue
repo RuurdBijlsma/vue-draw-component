@@ -1,5 +1,5 @@
 <template>
-    <div class="draw-canvas">
+    <div class="simple-draw">
         <div class="canvas-container" @keypress="handleKey">
             <canvas class="canvas"
                     ref="canvas"
@@ -54,7 +54,7 @@
 
 
     export default {
-        name: 'DrawCanvas',
+        name: 'SimpleDraw',
         props: {},
         data: () => ({
             activeTool: 'brush',
@@ -482,7 +482,7 @@
         height: 100%;
     }
 
-    .draw-canvas {
+    .simple-draw {
         min-width: 610px;
     }
 
